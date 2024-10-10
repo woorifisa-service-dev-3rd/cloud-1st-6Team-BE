@@ -1,10 +1,7 @@
 package com.lunch.backend.domain;
 
 import com.lunch.backend.model.RecordResponseDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -16,12 +13,18 @@ public class Record extends BaseTime {
     @Id
     @GeneratedValue
     private Long id;
+
     @Column(columnDefinition = "TEXT")
     private String image;
     private String content;
 
-    public static Record from(RecordResponseDTO recordResponseDTO){
+    @JoinColumn(name = "member_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
+    public static Record from(RecordResponseDTO recordResponseDTO, Member member){
         return Record.builder()
+                .member(member)
                 .image(recordResponseDTO.getImage())
                 .content(recordResponseDTO.getContent())
                 .build();
