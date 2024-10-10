@@ -3,9 +3,9 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main # (1). main 브랜치에 push될 때만 실행
+      - main # main 브랜치에 push될 때만 실행
 
-  workflow_dispatch: # (2).수동 실행도 가능하도록
+  workflow_dispatch: # 수동 실행도 가능하도록
 
 jobs:
   build:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Create SSH key file
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/key.pem
+          printf "${{ secrets.EC2_SSH_KEY }}" > /tmp/key.pem
           chmod 400 /tmp/key.pem  # SSH 키에 필요한 권한 설정
 
       - name: Deploy to EC2
@@ -49,10 +49,11 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: /tmp/key.pem  # 위에서 생성한 키 파일 사용
+          key: /tmp/key.pem  # SSH 키 파일 경로
           port: 22
           script: |
-            echo ${{ secrets.EC2_HOST }}
+            # 호스트 키 확인 비활성화 후 연결 테스트
+            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'"
             pkill -f 'java -jar' || true
             mkdir -p /home/ubuntu/app
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
