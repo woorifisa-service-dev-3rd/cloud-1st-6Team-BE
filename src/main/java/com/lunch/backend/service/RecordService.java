@@ -4,6 +4,7 @@ package com.lunch.backend.service;
 import com.lunch.backend.core.exception.Exception404;
 import com.lunch.backend.domain.Member;
 import com.lunch.backend.domain.Record;
+import com.lunch.backend.model.RecordRequestDTO;
 import com.lunch.backend.model.RecordResponseDTO;
 import com.lunch.backend.model.gpt.ChatGPTImageRequest;
 import com.lunch.backend.model.gpt.ChatGPTImageResponse;
@@ -42,10 +43,10 @@ public class RecordService {
         return RecordResponseDTO.from(records);
     }
 
-    public RecordResponseDTO showGptResponse(String prompt, Long memberId){
+    public RecordResponseDTO showGptResponse(RecordRequestDTO recordRequestDTO, Long memberId){
         Member member = findMemberByMemberId(memberId);
 
-        String content = findGptChat(prompt);
+        String content = findGptChat(recordRequestDTO.getPrompt());
         String imageUrl = findGptImage(content);
 
         RecordResponseDTO recordResponseDTO = RecordResponseDTO.of(imageUrl, content);
