@@ -26,24 +26,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 4. 빌드 파일 확인
-      - name: Print JAR files
-        run: ls build/libs
-
-      # 5. SSH 키 파일 생성
-      - name: Create SSH key file
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key
-          chmod 600 /tmp/ssh_key
-
-      # 6. rsync로 EC2에 파일 전송
-      - name: Upload Jar to EC2 using rsync
-        run: |
-          JAR_FILE=$(ls build/libs/*.jar | grep -v 'plain' | head -n 1)
-          echo "Uploading $JAR_FILE to EC2"
-          rsync -avz -e "ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no" "$JAR_FILE" ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/lunchBackend.jar
-
-      # 7. EC2 서버에서 애플리케이션 실행
+      # 5. EC2 서버에서 애플리케이션 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -52,7 +35,13 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            echo 'here'
             pkill -f 'java -jar' || true
-            echo 'here: 2'
-            nohup java -jar /home/ubuntu/lunchBackend.jar > /home/ubuntu/app.log 2>&1 & disown
+            cd ~
+            rm -rf cloud-1st-6Team-BE
+            git clone https://github.com/woorifisa-service-dev-3rd/cloud-1st-6Team-BE.git
+            cd cloud-1st-6Team-BE
+            ./gradlew clean build -x test
+            cd build/libs
+            nohup java -jar lunchBackend-0.0.1-SNAPSHOT.jar > /home/ubuntu/lunchBackend.log 2>&1 &
+            sleep 5  # 서버가 시작할 시간을 기다림
+            curl -f http://localhost:8080 || echo "App failed to start"
