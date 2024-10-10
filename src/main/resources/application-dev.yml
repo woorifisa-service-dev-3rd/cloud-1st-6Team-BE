@@ -20,7 +20,19 @@ spring:
     enabled: true
   aop:
     proxy-target-class: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 73811959614-kstuihrc2c5k8iisobmpj21n5ck5ucq7.apps.googleusercontent.com
+            client-secret: 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
+            redirect-uri: https://accounts.google.com/o/oauth2/v2/auth
+            scope: profile, email
 lunchBackend:
   openapi:
     dev-url: "http://localhost:8080"
     prod-url: "https://api.myapp.com"
+
+jwt:
+  secret: d25a6ae4ada134de6241d3b0229c353700bb13ca7e200d94b4948a400c724e5b7ac2bc8208647b6a82a5bb5387ce2835efa0bfea2569c8afc5ce703bcc0c2c3c
