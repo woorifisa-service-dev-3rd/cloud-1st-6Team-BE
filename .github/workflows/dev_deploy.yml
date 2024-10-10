@@ -3,9 +3,9 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main # main 브랜치에 push될 때만 실행
+      - main
 
-  workflow_dispatch: # 수동 실행도 가능하도록
+  workflow_dispatch:
 
 jobs:
   build:
@@ -42,20 +42,20 @@ jobs:
       - name: Create SSH key file
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > /tmp/key.pem
-          chmod 400 /tmp/key.pem  # SSH 키에 필요한 권한 설정
+          chmod 400 /tmp/key.pem
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: /tmp/key.pem  # SSH 키 파일 경로
+          key: /tmp/key.pem
           port: 22
           script: |
-            # 호스트 키 확인 비활성화 후 연결 테스트
             ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'"
             pkill -f 'java -jar' || true
             mkdir -p /home/ubuntu/app
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
             scp -o StrictHostKeyChecking=no build/libs/lunchBackend-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
             nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 &
+          debug: true  # 추가: 디버그 모드로 상세 로그 출력
