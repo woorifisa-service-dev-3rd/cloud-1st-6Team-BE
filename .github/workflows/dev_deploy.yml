@@ -47,6 +47,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
+            echo ${{ secrets.EC2_HOST }}
+            echo ${{ secrets.EC2_SSH_KEY }}
             pkill -f 'java -jar' || true
             mkdir -p /home/ubuntu/app
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
