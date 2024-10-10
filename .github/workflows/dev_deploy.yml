@@ -26,18 +26,24 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 3. Gradle 빌드
-      - name: print
+      # 4. 빌드 파일 확인
+      - name: Print JAR files
         run: ls build/libs
 
-      # 5. EC2 서버로 파일 전송 (첫 번째 JAR 파일을 자동으로 선택)
-      - name: Upload Jar to EC2
+      # 5. SSH 키 파일 생성
+      - name: Create SSH key file
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+
+      # 6. rsync로 EC2에 파일 전송
+      - name: Upload Jar to EC2 using rsync
         run: |
           JAR_FILE=$(ls build/libs/*.jar | grep -v 'plain' | head -n 1)
           echo "Uploading $JAR_FILE to EC2"
-          scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} "$JAR_FILE" ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/lunchBackend.jar
+          rsync -avz -e "ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no" "$JAR_FILE" ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/lunchBackend.jar
 
-      # 5. EC2 서버에서 애플리케이션 실행
+      # 7. EC2 서버에서 애플리케이션 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
