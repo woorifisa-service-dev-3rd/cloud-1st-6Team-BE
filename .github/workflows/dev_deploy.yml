@@ -41,21 +41,21 @@ jobs:
 
       - name: Create SSH key file
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\'$'\n/g' > /tmp/key.pem
+          echo "${{ secrets.KEY }}" | sed 's/\\n/\'$'\n/g' > /tmp/key.pem
           chmod 400 /tmp/key.pem
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER_NAME }}
           key: /tmp/key.pem
-          port: 22
+          port: ${{ secrets.PORT }}
           script: |
-            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'"
+            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.HOST }} "echo 'SSH connection successful'"
             pkill -f 'java -jar' || true
             mkdir -p /home/ubuntu/app
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
-            scp -o StrictHostKeyChecking=no build/libs/lunchBackend-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
+            scp -o StrictHostKeyChecking=no build/libs/lunchBackend-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.HOST }}:/home/ubuntu/app/lunchBackend.jar
             nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 &
           debug: true
