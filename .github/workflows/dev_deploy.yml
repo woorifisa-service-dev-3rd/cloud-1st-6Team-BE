@@ -26,18 +26,22 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 4. EC2 서버로 배포
+      # 4. EC2 서버로 파일 전송
+      - name: Upload Jar to EC2
+        run: scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} build/libs/lunchBackend.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
+
+      # 5. EC2 서버에서 애플리케이션 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu  # SSH 사용자와 통일
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
             echo 'here'
             pkill -f 'java -jar' || true
-            mv ~/app/lunchBackend.jar ~/app/lunchBackend-$(date +%F-%T).jar || true
-            scp -o StrictHostKeyChecking=no build/libs/lunchBackend.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
-            nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 & disown 
-
+            echo 'here: 1'
+            mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
+            echo 'here: 2'
+            nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 & disown
