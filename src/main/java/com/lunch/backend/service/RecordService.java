@@ -1,19 +1,18 @@
-package com.lunch.backend.controller;
+package com.lunch.backend.service;
+
 
 import com.lunch.backend.model.gpt.ChatGPTRequest;
 import com.lunch.backend.model.gpt.ChatGPTResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-@RestController
-@RequestMapping("/bot")
+@Service
 @RequiredArgsConstructor
-public class CustomBotController {
+@Transactional
+public class RecordService {
     @Value("${openai.model}")
     private String model;
 
@@ -22,11 +21,9 @@ public class CustomBotController {
 
     private final RestTemplate template;
 
-    @GetMapping("/chat")
-    public String chat(@RequestParam(name = "prompt")String prompt){
+    public String showGptResponse(String prompt){
         ChatGPTRequest request = new ChatGPTRequest(model, prompt);
         ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
         return chatGPTResponse.getChoices().get(0).getMessage().getContent();
     }
-
 }
