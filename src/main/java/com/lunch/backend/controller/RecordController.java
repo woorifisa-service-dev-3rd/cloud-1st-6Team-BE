@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RecordController {
     private final RecordService recordService;
-    
+
     @GetMapping
-    public ResponseDTO<RecordResponseDTO> chat(@RequestParam(name = "prompt") String prompt){
+    public ResponseDTO<RecordResponseDTO> getGptResponse(@RequestParam(name = "prompt") String prompt){
         return new ResponseDTO<>(HttpStatus.CREATED, recordService.showGptResponse(prompt));
     }
 
