@@ -1,0 +1,31 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/coumo
+    username: ${DATABASE_NAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+
+lunchBackend:
+  openapi:
+    dev-url: "http://localhost:8080"
+    prod-url: "https://api.myapp.com"
+
+openai:
+  model: gpt-3.5-turbo
+  api:
+    key: ${OPENAI_KEY}
+    chat-url: https://api.openai.com/v1/chat/completions
+    image-url: https://api.openai.com/v1/images/generations

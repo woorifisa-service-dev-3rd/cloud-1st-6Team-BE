@@ -11,6 +11,6 @@ import lombok.*;
 public class Member extends BaseTime {
     @Id
     @GeneratedValue
-    @Column(name = "user_id")
+    @Column(name = "member_id")
     private Long id;
 }

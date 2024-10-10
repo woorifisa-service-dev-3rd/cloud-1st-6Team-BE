@@ -23,6 +23,12 @@ public class ResponseDTO<T> {
         this.data = data; // 응답할 데이터
     }
 
+    public ResponseDTO(HttpStatus httpStatus, T data) {
+        this.status = httpStatus.value();
+        this.msg = "ok";
+        this.data = data; // 에러 내용
+    }
+
     public ResponseDTO(HttpStatus httpStatus, String msg, T data) {
         this.status = httpStatus.value();
         this.msg = msg; // 에러 제목
