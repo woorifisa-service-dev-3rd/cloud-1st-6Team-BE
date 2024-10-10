@@ -26,6 +26,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
+      # 3. Gradle 빌드
+      - name: print
+        run: ls build/libs
+
       - name: Upload Jar to EC2
         run: |
           JAR_FILE=$(ls build/libs/*.jar | head -n 2)
