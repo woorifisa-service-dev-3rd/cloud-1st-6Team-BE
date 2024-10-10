@@ -41,7 +41,7 @@ jobs:
 
       - name: Create SSH key file
         run: |
-          printf "${{ secrets.EC2_SSH_KEY }}" > /tmp/key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > /tmp/key.pem
           chmod 400 /tmp/key.pem  # SSH 키에 필요한 권한 설정
 
       - name: Deploy to EC2
