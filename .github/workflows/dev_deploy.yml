@@ -43,5 +43,3 @@ jobs:
             ./gradlew clean build -x test
             cd build/libs
             nohup java -jar lunchBackend-0.0.1-SNAPSHOT.jar > /home/ubuntu/lunchBackend.log 2>&1 &
-            sleep 5  # 서버가 시작할 시간을 기다림
-            curl -f http://localhost:8080 || echo "App failed to start"
