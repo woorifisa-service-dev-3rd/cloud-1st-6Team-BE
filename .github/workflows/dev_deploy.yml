@@ -41,7 +41,7 @@ jobs:
 
       - name: Create SSH key file
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > /tmp/key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\'$'\n/g' > /tmp/key.pem
           chmod 400 /tmp/key.pem
 
       - name: Deploy to EC2
@@ -58,4 +58,4 @@ jobs:
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
             scp -o StrictHostKeyChecking=no build/libs/lunchBackend-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
             nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 &
-          debug: true  # 추가: 디버그 모드로 상세 로그 출력
+          debug: true
