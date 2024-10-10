@@ -19,7 +19,7 @@ public class RecordService {
     @Value("${openai.model}")
     private String model;
 
-    @Value("${openai.api.url}")
+    @Value("${openai.api.chat-url}")
     private String apiURL;
 
     private final RestTemplate template;
