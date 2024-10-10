@@ -31,14 +31,13 @@ jobs:
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu  # SSH 사용자
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
             pkill -f 'java -jar' || true
             mv ~/app/lunchBackend.jar ~/app/lunchBackend-$(date +%F-%T).jar || true
-            scp -o StrictHostKeyChecking=no build/libs/lunchBackend.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
-            nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 & disown
+            scp -o StrictHostKeyChecking=no build/libs/lunchBackend.jar ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/app/lunchBackend.jar
+            nohup java -jar /home/ec2-user/app/lunchBackend.jar > /home/ec2-user/app/app.log 2>&1 &
         timeout: 60s
         command_timeout: 15m
-
