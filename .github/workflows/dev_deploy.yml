@@ -35,8 +35,8 @@ jobs:
         run: |
           JAR_FILE=$(ls build/libs/*.jar | grep -v 'plain' | head -n 1)
           echo "Uploading $JAR_FILE to EC2"
-          scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} "$JAR_FILE" ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/lunchBackend.jar
-          
+          scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} "$JAR_FILE" ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/lunchBackend.jar
+
       # 5. EC2 서버에서 애플리케이션 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
@@ -49,4 +49,4 @@ jobs:
             echo 'here'
             pkill -f 'java -jar' || true
             echo 'here: 2'
-            nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 & disown
+            nohup java -jar /home/ubuntu/lunchBackend.jar > /home/ubuntu/app.log 2>&1 & disown
