@@ -1,5 +1,6 @@
 package com.lunch.backend.controller;
 
+import com.lunch.backend.model.RecordResponseDTO;
 import com.lunch.backend.model.ResponseDTO;
 import com.lunch.backend.service.RecordService;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RecordController {
     private final RecordService recordService;
-    @GetMapping("/chat")
-    public ResponseDTO<String> chat(@RequestParam(name = "prompt") String prompt){
+    
+    @GetMapping
+    public ResponseDTO<RecordResponseDTO> chat(@RequestParam(name = "prompt") String prompt){
         return new ResponseDTO<>(HttpStatus.CREATED, recordService.showGptResponse(prompt));
     }
 

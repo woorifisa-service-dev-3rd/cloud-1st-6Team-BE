@@ -1,6 +1,6 @@
 package com.lunch.backend.domain;
 
-import jakarta.persistence.Column;
+import com.lunch.backend.model.RecordResponseDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -16,5 +16,12 @@ public class Record extends BaseTime {
     @GeneratedValue
     private Long id;
     private String image;
-    private String response;
+    private String content;
+
+    public static Record from(RecordResponseDTO recordResponseDTO){
+        return Record.builder()
+                .image(recordResponseDTO.getImage())
+                .content(recordResponseDTO.getContent())
+                .build();
+    }
 }
