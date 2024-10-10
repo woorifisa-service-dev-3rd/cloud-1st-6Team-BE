@@ -39,16 +39,20 @@ jobs:
         run: echo "CurrentTime=${{ steps.current-time.outputs.currentTime }}"
         shell: bash
 
+      - name: Create SSH key file
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/key.pem
+          chmod 400 /tmp/key.pem  # SSH 키에 필요한 권한 설정
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: /tmp/key.pem  # 위에서 생성한 키 파일 사용
           port: 22
           script: |
             echo ${{ secrets.EC2_HOST }}
-            echo ${{ secrets.EC2_SSH_KEY }}
             pkill -f 'java -jar' || true
             mkdir -p /home/ubuntu/app
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
