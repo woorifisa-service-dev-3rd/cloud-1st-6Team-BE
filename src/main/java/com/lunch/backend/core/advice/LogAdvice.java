@@ -18,11 +18,11 @@ import java.lang.reflect.Method;
 @Component
 public class LogAdvice {
 
-    @Pointcut("@annotation(ne.ordinary.dd.core.annotation.Log)")
+    @Pointcut("@annotation(com.lunch.backend.core.annotation.Log)")
     public void log() {
     }
 
-    @Pointcut("@annotation(ne.ordinary.dd.core.annotation.ErrorLog)")
+    @Pointcut("@annotation(com.lunch.backend.core.annotation.ErrorLog)")
     public void errorLog() {
     }
 

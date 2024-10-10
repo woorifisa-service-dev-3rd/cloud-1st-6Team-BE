@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/coumo
+    username: 'root'
+    password: '00000000'
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+  aop:
+    proxy-target-class: false
+lunchBackend:
+  openapi:
+    dev-url: "http://localhost:8080"
+    prod-url: "https://api.myapp.com"

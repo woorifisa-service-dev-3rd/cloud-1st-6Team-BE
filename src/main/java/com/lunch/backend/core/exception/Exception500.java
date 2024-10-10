@@ -1,7 +1,7 @@
 package com.lunch.backend.core.exception;
 
+import com.lunch.backend.model.ResponseDTO;
 import lombok.Getter;
-import ne.ordinary.dd.model.ResponseDTO;
 import org.springframework.http.HttpStatus;
 
 // 서버 에러
