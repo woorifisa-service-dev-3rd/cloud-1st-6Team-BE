@@ -4,6 +4,7 @@ server:
     encoding:
       charset: utf-8
       force: true
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,10 +17,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  flyway:
-    enabled: true
-  aop:
-    proxy-target-class: false
+
 lunchBackend:
   openapi:
     dev-url: "http://localhost:8080"

@@ -36,8 +36,13 @@ public class RecordService {
     private final RecordRepository recordRepository;
     private final MemberRepository memberRepository;
 
-    public RecordResponseDTO showGptResponse(String prompt, Long memberId){
+    public List<RecordResponseDTO> showRecords(Long memberId){
+        Member member = findMemberByMemberId(memberId);
+        List<Record> records = recordRepository.findByMember(member);
+        return RecordResponseDTO.from(records);
+    }
 
+    public RecordResponseDTO showGptResponse(String prompt, Long memberId){
         Member member = findMemberByMemberId(memberId);
 
         String content = findGptChat(prompt);
