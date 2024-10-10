@@ -23,6 +23,10 @@ public class Member extends BaseTime {
 
     private String authorities;
 
+    @OneToOne
+    @JoinColumn(name = "social_type_id")
+    private SocialType socialType;
+
     private Member(String email, String name) {
         this.email = email;
         this.name = name;

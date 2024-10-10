@@ -49,7 +49,7 @@ public class JwtTokenProvider {
         String email = userDetails.getEmail();
         Long id = userDetails.getId();
         String name = userDetails.getName();
-        Date accessTokenExpire = Date.from(ZonedDateTime.now().plusMonths(1).toInstant());
+        Date accessTokenExpire = Date.from(ZonedDateTime.now().plusMinutes(10).toInstant());
         return Jwts.builder()
                 .subject(authentication.getName())
                 .claim("id", id)

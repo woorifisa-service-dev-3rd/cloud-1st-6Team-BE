@@ -1,31 +1,43 @@
 package com.lunch.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.lunch.backend.domain.SocialType;
 import com.lunch.backend.model.*;
 import com.lunch.backend.repository.MemberRepository;
 import com.lunch.backend.domain.Member;
+import com.lunch.backend.repository.TypeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
+    private final TypeRepository typeRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -34,32 +46,64 @@ public class MemberService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.google.redirect-url}")
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String googleRedirectUrl;
 
-    public ResponseEntity<String> googleLogin(RequestCodeDTO requestCodeDTO) throws Exception {
-        String GOOGLE_TOKEN_REQUEST_URL = "https://oauth2.googleapis.com/token";
-        String authCode = requestCodeDTO.getAuthCode();
-        RestTemplate restTemplate=new RestTemplate();
+    public String googleLogin(RequestCodeDTO requestCodeDTO) throws Exception {
+        String accessToken = getAccessToken(requestCodeDTO.getAuthCode());
+        GoogleUserInfoDTO googleUserInfoDTO = getGoogleUserInfo(accessToken);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("code", authCode);
-        params.put("client_id", googleClientId);
-        params.put("client_secret", googleClientSecret);
-        params.put("redirect_uri", googleRedirectUrl);
-        params.put("grant_type", "authorization_code");
+        Member member = memberRepository.findByEmail(googleUserInfoDTO.getEmail()).orElse(null);
+        LoginResponseDTO loginResponseDTO;
+        if (member == null) {
+            SocialType socialType = typeRepository.findByProvider("google");
+            Member newMember = Member.builder()
+                    .email(googleUserInfoDTO.getEmail())
+                    .name(googleUserInfoDTO.getName())
+                    .socialType(socialType)
+                    .build();
 
-        return restTemplate.postForEntity(GOOGLE_TOKEN_REQUEST_URL, params, String.class);
+            loginResponseDTO = LoginResponseDTO.fromEntity(memberRepository.save(newMember));
+        } else {
+            loginResponseDTO = LoginResponseDTO.fromEntity(member);
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginResponseDTO.getEmail(), "");
+
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        return jwtTokenProvider.generateToken(authentication);
     }
 
-    public Optional<GoogleIdToken> verifyIdToken(String idTokenString) throws Exception {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(Collections.singletonList(googleClientId))
-                .build();
+    public String getAccessToken(String authCode) throws Exception {
+        String tokenRequestURL = "https://oauth2.googleapis.com/token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        GoogleIdToken idToken = verifier.verify(idTokenString);
-        return Optional.ofNullable(idToken);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", googleClientId);
+        params.add("client_secret", googleClientSecret);
+        params.add("code", authCode);
+        params.add("grant_type", "authorization_code");
+        params.add("redirect_uri", "postmessage"); // 리다이렉트 URI
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<GoogleOAuthToken> response = restTemplate.postForEntity(tokenRequestURL, request, GoogleOAuthToken.class);
+
+        return response.getBody().getAccess_token();
     }
+
+
+//    public Optional<GoogleIdToken> verifyIdToken(String idTokenString) throws Exception {
+//        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+//                .setAudience(Collections.singletonList(googleClientId))
+//                .build();
+//
+//        GoogleIdToken idToken = verifier.verify(idTokenString);
+//        return Optional.ofNullable(idToken);
+//    }
 
     public GoogleUserInfoDTO getGoogleUserInfo(String accessToken) {
         String url = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" + accessToken;
@@ -72,4 +116,9 @@ public class MemberService {
         return member.getAuthorities();
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 이메일입니다."));
+        return new User(member.getEmail(), member.getPassword(), new ArrayList<>());
+    }
 }
