@@ -35,9 +35,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
+            echo 'here'
             pkill -f 'java -jar' || true
             mv ~/app/lunchBackend.jar ~/app/lunchBackend-$(date +%F-%T).jar || true
             scp -o StrictHostKeyChecking=no build/libs/lunchBackend.jar ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/app/lunchBackend.jar
             nohup java -jar /home/ec2-user/app/lunchBackend.jar > /home/ec2-user/app/app.log 2>&1 &
-        timeout: 60s
-        command_timeout: 15m
