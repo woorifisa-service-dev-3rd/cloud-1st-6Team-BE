@@ -52,10 +52,5 @@ jobs:
           key: /tmp/key.pem
           port: ${{ secrets.PORT }}
           script: |
-            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.HOST }} "echo 'SSH connection successful'"
-            pkill -f 'java -jar' || true
-            mkdir -p /home/ubuntu/app
-            mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
-            scp -o StrictHostKeyChecking=no build/libs/lunchBackend-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.HOST }}:/home/ubuntu/app/lunchBackend.jar
-            nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 &
+            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.HOST }} whoami
           debug: true
