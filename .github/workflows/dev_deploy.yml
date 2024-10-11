@@ -45,7 +45,7 @@ jobs:
           chmod 400 /tmp/key.pem
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.6
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER_NAME }}
