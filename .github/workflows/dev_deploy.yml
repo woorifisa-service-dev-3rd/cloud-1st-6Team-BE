@@ -47,6 +47,10 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
+            export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            export OPENAI_KEY=${{ secrets.OPENAI_KEY }}
+            
             cd ~
             ./deploy.sh
           debug: true
