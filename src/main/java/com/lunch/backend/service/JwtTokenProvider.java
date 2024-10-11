@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 
-@PropertySource("classpath:application-dev.yml")
+@PropertySource("classpath:application-prod.yml")
 @Component
 @Slf4j
 public class JwtTokenProvider {
