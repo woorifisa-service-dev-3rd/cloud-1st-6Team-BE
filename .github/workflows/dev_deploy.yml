@@ -48,7 +48,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             echo 'task1'
-#            pkill -f 'java -jar' || echo 'No process found to kill'  # 프로세스가 없을 때 로그 출력
             echo 'task2'
             mkdir -p /home/ubuntu/app
             echo 'task3'
