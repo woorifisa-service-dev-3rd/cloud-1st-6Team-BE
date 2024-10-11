@@ -10,6 +10,7 @@ import com.lunch.backend.model.*;
 import com.lunch.backend.repository.MemberRepository;
 import com.lunch.backend.domain.Member;
 import com.lunch.backend.repository.TypeRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,7 +37,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class MemberService implements UserDetailsService {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
     private final TypeRepository typeRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -57,6 +58,7 @@ public class MemberService implements UserDetailsService {
         LoginResponseDTO loginResponseDTO;
         if (member == null) {
             SocialType socialType = typeRepository.findByProvider("google");
+            System.out.println(socialType.getProvider());
             Member newMember = Member.builder()
                     .email(googleUserInfoDTO.getEmail())
                     .name(googleUserInfoDTO.getName())
@@ -67,12 +69,14 @@ public class MemberService implements UserDetailsService {
         } else {
             loginResponseDTO = LoginResponseDTO.fromEntity(member);
         }
-
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginResponseDTO.getEmail(), "");
-
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        return jwtTokenProvider.generateToken(authentication);
+        UserDetails userDetails = CustomUserDetail.builder()
+                .Id(loginResponseDTO.getId())
+                .email(loginResponseDTO.getEmail())
+                .name(loginResponseDTO.getName())
+                .build();
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        return jwtTokenProvider.generateToken(authenticationToken);
     }
 
     public String getAccessToken(String authCode) throws Exception {
@@ -120,5 +124,12 @@ public class MemberService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 이메일입니다."));
         return new User(member.getEmail(), member.getPassword(), new ArrayList<>());
+    }
+
+    public String test(HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        System.out.println(accessToken);
+
+        return "Hello";
     }
 }

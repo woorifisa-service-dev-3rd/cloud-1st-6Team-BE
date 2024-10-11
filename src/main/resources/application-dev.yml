@@ -7,12 +7,12 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/coumo
+    url: jdbc:mysql://localhost:3307/hack
     username: 'root'
-    password: '00000000'
+    password: '0000'
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -36,3 +36,8 @@ lunchBackend:
 
 jwt:
   secret: d25a6ae4ada134de6241d3b0229c353700bb13ca7e200d94b4948a400c724e5b7ac2bc8208647b6a82a5bb5387ce2835efa0bfea2569c8afc5ce703bcc0c2c3c
+
+logging:
+  level:
+    root:
+      debug

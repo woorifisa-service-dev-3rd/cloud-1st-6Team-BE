@@ -12,11 +12,13 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsUtils;
 
 import java.io.IOException;
 
@@ -29,20 +31,33 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.addAllowedOrigin("http://localhost:5173"); // 허용할 클라이언트 URL
-                    config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
-                    config.addAllowedHeader("*"); // 모든 헤더 허용
+                    config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 클라이언트 URL
+                    config.addAllowedHeader("*");
+                    config.addExposedHeader("*");
+                    config.addAllowedMethod("GET");
+                    config.addAllowedMethod("POST");
+                    config.addAllowedMethod("PUT");
+                    config.addAllowedMethod("DELETE");// 모든 HTTP 메서드 허용
                     config.setAllowCredentials(true); // 쿠키 허용
                     return config;
                 }));
 
         http
+                .headers(headers -> {
+                    headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                });
+
+        http
                 .authorizeHttpRequests(request -> {
+                    request.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
                     request.requestMatchers("/").permitAll();
                     request.requestMatchers("/api/auth/login").permitAll();
+                    request.requestMatchers("/api/auth/test").permitAll();
                     request.anyRequest().authenticated();
                 })
                 .csrf(AbstractHttpConfigurer::disable)
