@@ -50,7 +50,10 @@ jobs:
             export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
             export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
             export OPENAI_KEY=${{ secrets.OPENAI_KEY }}
-            
+   
+            echo "DATABASE_NAME: $DATABASE_NAME"
+            echo "DATABASE_PASSWORD: $DATABASE_PASSWORD"
+            echo "OPENAI_KEY: $OPENAI_KEY"
             cd ~
             ./deploy.sh
           debug: true
