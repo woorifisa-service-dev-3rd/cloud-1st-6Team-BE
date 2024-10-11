@@ -47,9 +47,10 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
+            echo 'task1'
             pkill -f 'java -jar' || true
+            echo 'task2'
             mkdir -p /home/ubuntu/app
+            echo 'task3'
             mv /home/ubuntu/app/lunchBackend.jar /home/ubuntu/app/lunchBackend-$(date +%F-%T).jar || true
-            scp -o StrictHostKeyChecking=no build/libs/lunchBackend-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.HOST }}:/home/ubuntu/app/lunchBackend.jar
-            nohup java -jar /home/ubuntu/app/lunchBackend.jar > /home/ubuntu/app/app.log 2>&1 &
           debug: true
