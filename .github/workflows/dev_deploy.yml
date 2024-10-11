@@ -47,14 +47,6 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            # 1. 기존 JAR 프로세스 중지 (이미 실행 중인 경우)
-            if pgrep -f 'java -jar'; then
-              echo "Stopping existing JAR process..."
-              pkill -f 'java -jar'
-            else
-              echo "No running JAR process found."
-            fi
-          
             # 2. 프로젝트 클론 후 빌드
             git clone https://github.com/woorifisa-service-dev-3rd/cloud-1st-6Team-BE.git
             cd cloud-1st-6Team-BE
