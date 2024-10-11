@@ -52,5 +52,5 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.HOST }} whoami
+            whoami
           debug: true
