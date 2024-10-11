@@ -50,6 +50,9 @@ jobs:
             export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
             export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
             export OPENAI_KEY=${{ secrets.OPENAI_KEY }}
+            export AUTH_CLIENT_ID=${{ secrets.AUTH_CLIENT_ID }}
+            export AUTH_CLIENT_SECRET=${{ secrets.AUTH_CLIENT_SECRET }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
    
             echo "DATABASE_NAME: $DATABASE_NAME"
             echo "DATABASE_PASSWORD: $DATABASE_PASSWORD"
