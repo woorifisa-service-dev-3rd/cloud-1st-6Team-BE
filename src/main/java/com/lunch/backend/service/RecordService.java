@@ -12,8 +12,10 @@ import com.lunch.backend.model.gpt.ChatGPTRequest;
 import com.lunch.backend.model.gpt.ChatGPTResponse;
 import com.lunch.backend.repository.MemberRepository;
 import com.lunch.backend.repository.RecordRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -36,16 +38,18 @@ public class RecordService {
     private final RestTemplate template;
     private final RecordRepository recordRepository;
     private final MemberRepository memberRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public List<RecordResponseDTO> showRecords(Long memberId){
+    public List<RecordResponseDTO> showRecords(String accessToken){
+        Long memberId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
         Member member = findMemberByMemberId(memberId);
         List<Record> records = recordRepository.findByMember(member);
         return RecordResponseDTO.from(records);
     }
 
-    public RecordResponseDTO showGptResponse(RecordRequestDTO recordRequestDTO, Long memberId){
+    public RecordResponseDTO showGptResponse(RecordRequestDTO recordRequestDTO, String accessToken){
+        Long memberId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
         Member member = findMemberByMemberId(memberId);
-
         String content = findGptChat(recordRequestDTO.getPrompt());
         String imageUrl = findGptImage(content);
 

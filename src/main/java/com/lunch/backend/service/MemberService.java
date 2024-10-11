@@ -126,10 +126,4 @@ public class MemberService implements UserDetailsService {
         return new User(member.getEmail(), member.getPassword(), new ArrayList<>());
     }
 
-    public String test(HttpServletRequest request) {
-        String accessToken = jwtTokenProvider.resolveToken(request);
-        System.out.println(accessToken);
-
-        return "Hello";
-    }
 }

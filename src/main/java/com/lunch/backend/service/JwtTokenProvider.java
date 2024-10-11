@@ -4,6 +4,7 @@ import com.lunch.backend.model.CustomUserDetail;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -106,10 +108,19 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        String token = request.getHeader(HEADER_KEY);
-        if (!ObjectUtils.isEmpty(token) && token.startsWith(PREFIX)) {
-            return token.substring(PREFIX.length()+1);
+        Cookie[] cookies = request.getCookies();
+        String accessToken = null;
+        for (int i=0; i<cookies.length; i++) {
+            if (Objects.equals(cookies[i].getName(), "accessToken")) {
+                accessToken = cookies[i].getValue();
+            }
         }
-        return null;
+        return accessToken;
     }
+
+    public Long getUserIdFromAccessToken(String accessToken) {
+        Claims claims = parseClaims(accessToken);
+        return Long.parseLong(claims.get("id").toString());
+    }
+
 }
